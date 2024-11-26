@@ -4,7 +4,7 @@ import (
     "context"
     "log"
     
-    "github.com/Tabintel/invoice-system/ent"
+    "github.com/Tabintel/invoice-system/internal/ent"
     _ "github.com/lib/pq"
 )
 

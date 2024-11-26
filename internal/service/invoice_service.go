@@ -4,8 +4,9 @@ import (
     "context"
     "fmt"
     "time"
-    "github.com/Tabintel/invoice-system/ent"
+    "github.com/Tabintel/invoice-system/internal/ent"
     "github.com/jung-kurt/gofpdf"
+    
 )
 
 type InvoiceService struct {

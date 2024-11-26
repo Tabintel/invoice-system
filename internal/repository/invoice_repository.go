@@ -3,7 +3,7 @@ package repository
 import (
     "context"
     "github.com/Tabintel/invoice-system/internal/ent"
-    "github.com/Tabintel/invoice-system/internal/ent/invoice"
+    //"github.com/Tabintel/invoice-system/internal/ent/invoice"
 )
 
 type InvoiceRepository struct {
