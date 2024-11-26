@@ -6,6 +6,7 @@ import (
     "entgo.io/ent/schema/edge"
 )
 
+// InvoiceItem holds the schema definition for the InvoiceItem entity.
 type InvoiceItem struct {
     ent.Schema
 }
@@ -22,6 +23,8 @@ func (InvoiceItem) Fields() []ent.Field {
 
 func (InvoiceItem) Edges() []ent.Edge {
     return []ent.Edge{
-        edge.From("invoice", Invoice.Type).Ref("items").Unique(),
+        edge.From("invoice", Invoice.Type).
+            Ref("items").
+            Unique(),
     }
 }

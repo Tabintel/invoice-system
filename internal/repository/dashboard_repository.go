@@ -3,11 +3,13 @@ package repository
 import (
     "context"
     "github.com/Tabintel/invoice-system/internal/ent"
-    //"github.com/Tabintel/invoice-system/ent/invoice"
 )
 
-type DashboardRepository struct {
-    client *ent.Client
+type DashboardStats struct {
+    TotalPaid         int     `json:"total_paid"`
+    TotalPaidAmount   float64 `json:"total_paid_amount"`
+    TotalOverdue      int     `json:"total_overdue"`
+    TotalOverdueAmount float64 `json:"total_overdue_amount"`
 }
 
 func NewDashboardRepository(client *ent.Client) *DashboardRepository {

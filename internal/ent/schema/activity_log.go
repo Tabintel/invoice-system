@@ -7,6 +7,7 @@ import (
     "entgo.io/ent/schema/edge"
 )
 
+// ActivityLog holds the schema definition for the ActivityLog entity.
 type ActivityLog struct {
     ent.Schema
 }
@@ -22,6 +23,8 @@ func (ActivityLog) Fields() []ent.Field {
 
 func (ActivityLog) Edges() []ent.Edge {
     return []ent.Edge{
-        edge.From("invoice", Invoice.Type).Ref("activities").Unique(),
+        edge.From("invoice", Invoice.Type).
+            Ref("activities").
+            Unique(),
     }
 }

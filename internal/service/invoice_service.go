@@ -4,10 +4,21 @@ import (
     "context"
     "fmt"
     "time"
-    "github.com/Tabintel/invoice-system/internal/ent"
     "github.com/jung-kurt/gofpdf"
-    
+    "github.com/Tabintel/invoice-system/internal/ent"
+    "github.com/Tabintel/invoice-system/internal/repository"
 )
+
+type DashboardStats struct {
+    TotalPaid         int     `json:"total_paid"`
+    TotalPaidAmount   float64 `json:"total_paid_amount"`
+    TotalOverdue      int     `json:"total_overdue"`
+    TotalOverdueAmount float64 `json:"total_overdue_amount"`
+}
+
+func generateSecureToken() string {
+    return fmt.Sprintf("%d%d", time.Now().UnixNano(), time.Now().Unix())
+}
 
 type InvoiceService struct {
     repo            *repository.InvoiceRepository
@@ -31,7 +42,7 @@ func (s *InvoiceService) GeneratePDF(ctx context.Context, invoiceID int) ([]byte
     pdf.SetFont("Arial", "B", 16)
     pdf.Cell(40, 10, fmt.Sprintf("Invoice #%s", invoice.ReferenceNumber))
     
-    return pdf.OutputBytes()
+    return pdf.Output()
 }
 
 func (s *InvoiceService) GenerateShareableLink(ctx context.Context, invoiceID int) (string, error) {

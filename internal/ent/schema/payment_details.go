@@ -6,6 +6,7 @@ import (
     "entgo.io/ent/schema/edge"
 )
 
+// PaymentDetails holds the schema definition for the PaymentDetails entity.
 type PaymentDetails struct {
     ent.Schema
 }
@@ -22,6 +23,8 @@ func (PaymentDetails) Fields() []ent.Field {
 
 func (PaymentDetails) Edges() []ent.Edge {
     return []ent.Edge{
-        edge.From("invoice", Invoice.Type).Ref("payment_details").Unique(),
+        edge.From("invoice", Invoice.Type).
+            Ref("payment_details").
+            Unique(),
     }
 }
