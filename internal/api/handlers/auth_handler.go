@@ -2,10 +2,10 @@ package handlers
 
 import (
     "github.com/gofiber/fiber/v2"
+    "github.com/Tabintel/invoice-system/internal/middleware"
     "github.com/Tabintel/invoice-system/internal/service"
-    "github.com/Tabintel/invoice-system/internal/pkg/jwt"
+    "github.com/Tabintel/invoice-system/internal/ent"
 )
-
 type AuthHandler struct {
     userService *service.UserService
     jwtSecret   string
