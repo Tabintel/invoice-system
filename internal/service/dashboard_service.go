@@ -14,14 +14,8 @@ func NewDashboardService(repo *repository.Repository) *DashboardService {
 }
 
 type DashboardResponse struct {
-    Stats struct {
-        Paid    StatInfo `json:"paid"`
-        Overdue StatInfo `json:"overdue"`
-        Draft   StatInfo `json:"draft"`
-        Unpaid  StatInfo `json:"unpaid"`
-    } `json:"stats"`
-    RecentInvoices []InvoiceInfo    `json:"recent_invoices"`
-    Activities     []ActivityInfo    `json:"activities"`
+    RecentInvoices []repository.InvoiceInfo  `json:"recent_invoices"`
+    RecentActivity []repository.ActivityInfo `json:"recent_activity"`
 }
 
 type StatInfo struct {

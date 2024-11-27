@@ -2,8 +2,11 @@ package service
 
 import (
     "context"
+    "errors"
+    "time"
+    "github.com/dgrijalva/jwt-go"
+    "golang.org/x/crypto/bcrypt"
     "github.com/Tabintel/invoice-system/internal/repository"
-    "github.com/Tabintel/invoice-system/internal/middleware"
 )
 
 type AuthService struct {
