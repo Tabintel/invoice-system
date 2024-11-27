@@ -46,6 +46,15 @@ func (s *Server) setupRoutes() {
 
     s.router.Put("/api/invoices/{id}/status", invoiceHandler.UpdateStatus())
 
+    // Serve Swagger UI
+    s.router.Get("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(docs.GetSwaggerSpec())
+    })
+
+    // Serve Swagger UI static files
+    s.router.Get("/docs/*", http.StripPrefix("/docs/", http.FileServer(http.Dir("swagger-ui"))))
+
 }
 
 func (s *Server) handleHealth() http.HandlerFunc {

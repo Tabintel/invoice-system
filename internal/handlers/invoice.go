@@ -17,6 +17,19 @@ func NewInvoiceHandler(service *services.InvoiceService) *InvoiceHandler {
     return &InvoiceHandler{service: service}
 }
 
+// @title Invoice System API
+// @version 1.0
+// @description API for invoice management system
+// @host api.invoice-system.onrender.com
+// @BasePath /api
+
+// @Summary Create new invoice
+// @Tags invoices
+// @Accept json
+// @Produce json
+// @Param invoice body services.CreateInvoiceInput true "Invoice Creation Input"
+// @Success 200 {object} ent.Invoice
+// @Router /invoices [post]
 func (h *InvoiceHandler) Create() http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         var input services.CreateInvoiceInput
@@ -41,7 +54,6 @@ func (h *InvoiceHandler) Create() http.HandlerFunc {
         })
     }
 }
-
 func (h *InvoiceHandler) List() http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         input := services.ListInvoicesInput{

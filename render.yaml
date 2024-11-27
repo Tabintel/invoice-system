@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: invoice-system-api
+    env: go
+    buildCommand: go build -o main ./cmd/api
+    startCommand: ./main
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: invoice-system-db
+          property: connectionString

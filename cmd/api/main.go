@@ -8,15 +8,20 @@ import (
     "github.com/joho/godotenv"
     "github.com/Tabintel/invoice-system/internal/database"
     "github.com/Tabintel/invoice-system/internal/server"
+    httpSwagger "github.com/swaggo/http-swagger"
+    _ "github.com/Tabintel/invoice-system/docs"
 )
 
-func init() {
+// @title Invoice System API
+// @version 1.0
+// @description A modern invoice management system API
+// @host invoice-system-api.onrender.com
+// @BasePath /api
+func main() {
     if err := godotenv.Load(); err != nil {
         log.Printf("No .env file found")
     }
-}
-
-func main() {
+    
     dbURL := os.Getenv("DATABASE_URL")
     if dbURL == "" {
         log.Fatal("DATABASE_URL environment variable is not set")
@@ -26,6 +31,11 @@ func main() {
     defer client.Close()
     
     srv := server.NewServer(client)
+    
+    // Add Swagger endpoint
+    srv.Router().Get("/swagger/*", httpSwagger.Handler(
+        httpSwagger.URL("/swagger/doc.json"),
+    ))
     
     port := os.Getenv("PORT")
     if port == "" {
