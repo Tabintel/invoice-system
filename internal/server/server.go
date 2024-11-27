@@ -10,7 +10,7 @@ import (
     "github.com/Tabintel/invoice-system/internal/docs"
     "github.com/Tabintel/invoice-system/internal/services"
     "github.com/Tabintel/invoice-system/internal/handlers"
-    httpSwagger "github.com/swaggo/http-swagger"
+   // httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Server struct {
