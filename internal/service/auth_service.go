@@ -2,20 +2,15 @@ package service
 
 import (
     "context"
-    "errors"
-    "os"
-    "time"
-    
-    "github.com/golang-jwt/jwt/v4"
-    "golang.org/x/crypto/bcrypt"
     "github.com/Tabintel/invoice-system/internal/repository"
+    "github.com/Tabintel/invoice-system/internal/middleware"
 )
 
 type AuthService struct {
-    repo *repository.UserRepository
+    repo *repository.Repository
 }
 
-func NewAuthService(repo *repository.UserRepository) *AuthService {
+func NewAuthService(repo *repository.Repository) *AuthService {
     return &AuthService{repo: repo}
 }
 

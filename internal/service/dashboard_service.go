@@ -6,15 +6,11 @@ import (
 )
 
 type DashboardService struct {
-    invoiceRepo *repository.InvoiceRepository
-    userRepo    *repository.UserRepository
+    repo *repository.Repository
 }
 
-func NewDashboardService(invoiceRepo *repository.InvoiceRepository, userRepo *repository.UserRepository) *DashboardService {
-    return &DashboardService{
-        invoiceRepo: invoiceRepo,
-        userRepo:    userRepo,
-    }
+func NewDashboardService(repo *repository.Repository) *DashboardService {
+    return &DashboardService{repo: repo}
 }
 
 type DashboardResponse struct {
