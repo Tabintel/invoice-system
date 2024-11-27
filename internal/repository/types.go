@@ -5,13 +5,13 @@ import (
 )
 
 type Activity struct {
-    ID          int64     `json:"id"`
-    UserID      int64     `json:"user_id"`
-    InvoiceID   int64     `json:"invoice_id"`
-    Action      string    `json:"action"`
-    Details     string    `json:"details"`
-    CreatedAt   time.Time `json:"created_at"`
-    InvoiceNumber string  `json:"invoice_number"`
+    ID            int64     `json:"id"`
+    UserID        int64     `json:"user_id"`
+    InvoiceID     int64     `json:"invoice_id"`
+    Action        string    `json:"action"`
+    Details       string    `json:"details"`
+    CreatedAt     time.Time `json:"created_at"`
+    InvoiceNumber string    `json:"invoice_number"`
 }
 
 type InvoiceInfo struct {
