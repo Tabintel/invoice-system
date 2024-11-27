@@ -1,14 +1,13 @@
-.PHONY: test migrate
+.PHONY: build test run clean
+
+build:
+	go build -o bin/api cmd/api/main.go
 
 test:
-	go test -v -cover ./...
+	go test -v ./...
 
-migrate-up:
-	migrate -path migrations -database "${DATABASE_URL}" up
+run:
+	go run cmd/api/main.go
 
-migrate-down:
-	migrate -path migrations -database "${DATABASE_URL}" down
-
-new-migration:
-	@read -p "Enter migration name: " name; \
-	migrate create -ext sql -dir migrations -seq $$name
+clean:
+	rm -rf bin/
