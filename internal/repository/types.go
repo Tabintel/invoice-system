@@ -9,10 +9,14 @@ type User struct {
     Name        string    `json:"name"`
     Email       string    `json:"email"`
     Password    string    `json:"-"`
+    Phone       string    `json:"phone"`
     CompanyName string    `json:"company_name"`
+    CompanyLogo string    `json:"company_logo"`
+    Location    string    `json:"location"`
+    Role        string    `json:"role"`
     CreatedAt   time.Time `json:"created_at"`
+    UpdatedAt   time.Time `json:"updated_at"`
 }
-
 type Activity struct {
     ID            int64     `json:"id"`
     UserID        int64     `json:"user_id"`
