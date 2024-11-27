@@ -4,6 +4,7 @@ import (
     "bytes"
     "html/template"
     "net/smtp"
+    "github.com/Tabintel/invoice-system/internal/repository"
 )
 
 type NotificationService struct {

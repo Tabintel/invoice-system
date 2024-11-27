@@ -6,6 +6,10 @@ import (
     "time"
 )
 
+type InvoiceRepository struct {
+    db *sql.DB
+}
+
 type Invoice struct {
     ID              int64     `json:"id"`
     ReferenceNumber string    `json:"reference_number"`
@@ -29,6 +33,10 @@ type InvoiceItem struct {
     Quantity    int     `json:"quantity"`
     Rate        float64 `json:"rate"`
     Amount      float64 `json:"amount"`
+}
+
+func NewInvoiceRepository(db *sql.DB) *InvoiceRepository {
+    return &InvoiceRepository{db: db}
 }
 
 func (r *InvoiceRepository) BeginTx(ctx context.Context) (*sql.Tx, error) {
@@ -63,15 +71,42 @@ func (r *InvoiceRepository) CreateInvoiceItem(ctx context.Context, tx *sql.Tx, i
     return err
 }
 
+func (r *InvoiceRepository) GetByID(ctx context.Context, id int64) (*Invoice, error) {
+    query := `
+        SELECT id, reference_number, sender_id, customer_id, amount, currency,
+               status, issue_date, due_date, notes, created_at, updated_at
+        FROM invoices
+        WHERE id = $1`
+
+    inv := &Invoice{}
+    err := r.db.QueryRowContext(ctx, query, id).Scan(
+        &inv.ID, &inv.ReferenceNumber, &inv.SenderID, &inv.CustomerID,
+        &inv.Amount, &inv.Currency, &inv.Status, &inv.IssueDate,
+        &inv.DueDate, &inv.Notes, &inv.CreatedAt, &inv.UpdatedAt,
+    )
+    if err != nil {
+        return nil, err
+    }
+
+    return inv, nil
+}
+
+func (r *InvoiceRepository) UpdateInvoiceTx(ctx context.Context, tx *sql.Tx, inv *Invoice) error {
+    query := `
+        UPDATE invoices
+        SET status = $1, updated_at = $2
+        WHERE id = $3`
+
+    _, err := tx.ExecContext(ctx, query, inv.Status, inv.UpdatedAt, inv.ID)
+    return err
+}
+
 func (r *InvoiceRepository) GetDashboardStats(ctx context.Context, userID int64) (map[string]struct {
     Count int
     Total float64
 }, error) {
     query := `
-        SELECT 
-            status,
-            COUNT(*) as count,
-            COALESCE(SUM(amount), 0) as total_amount
+        SELECT status, COUNT(*) as count, COALESCE(SUM(amount), 0) as total_amount
         FROM invoices
         WHERE sender_id = $1
         GROUP BY status`
@@ -103,34 +138,13 @@ func (r *InvoiceRepository) GetDashboardStats(ctx context.Context, userID int64)
     return stats, nil
 }
 
-func (r *InvoiceRepository) GetRecentInvoices(ctx context.Context, userID int64, limit int) ([]Invoice, error) {
+func (r *InvoiceRepository) LogActivityTx(ctx context.Context, tx *sql.Tx, activity *Activity) error {
     query := `
-        SELECT id, reference_number, customer_id, amount, currency, status, 
-               issue_date, due_date, created_at
-        FROM invoices
-        WHERE sender_id = $1
-        ORDER BY created_at DESC
-        LIMIT $2`
+        INSERT INTO activities (user_id, invoice_id, action, details)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, created_at`
 
-    rows, err := r.db.QueryContext(ctx, query, userID, limit)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
-
-    var invoices []Invoice
-    for rows.Next() {
-        var inv Invoice
-        err := rows.Scan(
-            &inv.ID, &inv.ReferenceNumber, &inv.CustomerID, &inv.Amount,
-            &inv.Currency, &inv.Status, &inv.IssueDate, &inv.DueDate,
-            &inv.CreatedAt,
-        )
-        if err != nil {
-            return nil, err
-        }
-        invoices = append(invoices, inv)
-    }
-
-    return invoices, nil
+    return tx.QueryRowContext(ctx, query,
+        activity.UserID, activity.InvoiceID, activity.Action, activity.Details,
+    ).Scan(&activity.ID, &activity.CreatedAt)
 }
