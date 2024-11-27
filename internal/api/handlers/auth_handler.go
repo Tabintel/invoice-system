@@ -1,65 +1,77 @@
 package handlers
 
 import (
-    "github.com/gofiber/fiber/v2"
-    "github.com/Tabintel/invoice-system/internal/middleware"
+    "encoding/json"
+    "net/http"
     "github.com/Tabintel/invoice-system/internal/service"
-    "github.com/Tabintel/invoice-system/internal/ent"
 )
+
 type AuthHandler struct {
-    userService *service.UserService
-    jwtSecret   string
+    service *service.AuthService
 }
 
-func NewAuthHandler(userService *service.UserService, jwtSecret string) *AuthHandler {
-    return &AuthHandler{
-        userService: userService,
-        jwtSecret:   jwtSecret,
-    }
+func NewAuthHandler(service *service.AuthService) *AuthHandler {
+    return &AuthHandler{service: service}
 }
 
-// @Summary Login user
-// @Description Authenticate user and return JWT token
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param credentials body LoginRequest true "Login credentials"
-// @Success 200 {object} LoginResponse
-// @Router /auth/login [post]
-func (h *AuthHandler) Login(c *fiber.Ctx) error {
-    var req LoginRequest
-    if err := c.BodyParser(&req); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "Invalid request body",
-        })
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
     }
 
-    user, err := h.userService.Authenticate(c.Context(), req.Email, req.Password)
+    var req service.LoginRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    token, err := h.service.Login(r.Context(), &req)
     if err != nil {
-        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-            "error": "Invalid credentials",
-        })
+        http.Error(w, err.Error(), http.StatusUnauthorized)
+        return
     }
 
-    token, err := jwt.GenerateToken(user.ID, user.Email, user.Role, h.jwtSecret)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Could not generate token",
-        })
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
     }
 
-    return c.JSON(LoginResponse{
-        Token: token,
-        User:  user,
+    var req service.RegisterRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    // Validate required fields for invoice system
+    if req.Name == "" || req.Email == "" || req.Password == "" || req.CompanyName == "" {
+        http.Error(w, "Missing required fields", http.StatusBadRequest)
+        return
+    }
+
+    if err := h.service.Register(r.Context(), &req); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    // Auto-login after registration
+    token, err := h.service.Login(r.Context(), &service.LoginRequest{
+        Email:    req.Email,
+        Password: req.Password,
     })
-}
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-type LoginRequest struct {
-    Email    string `json:"email"`
-    Password string `json:"password"`
-}
-
-type LoginResponse struct {
-    Token string     `json:"token"`
-    User  *ent.User `json:"user"`
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{
+        "token": token,
+        "message": "Registration successful",
+    })
 }

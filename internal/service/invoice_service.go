@@ -4,71 +4,156 @@ import (
     "context"
     "fmt"
     "time"
-    "github.com/jung-kurt/gofpdf"
-    "github.com/Tabintel/invoice-system/internal/ent"
     "github.com/Tabintel/invoice-system/internal/repository"
 )
 
-type DashboardStats struct {
-    TotalPaid         int     `json:"total_paid"`
-    TotalPaidAmount   float64 `json:"total_paid_amount"`
-    TotalOverdue      int     `json:"total_overdue"`
-    TotalOverdueAmount float64 `json:"total_overdue_amount"`
-}
-
-func generateSecureToken() string {
-    return fmt.Sprintf("%d%d", time.Now().UnixNano(), time.Now().Unix())
-}
-
 type InvoiceService struct {
-    repo            *repository.InvoiceRepository
-    activityRepo    *repository.ActivityRepository
-    dashboardRepo   *repository.DashboardRepository
+    repo *repository.InvoiceRepository
 }
 
-func (s *InvoiceService) GetDashboardStats(ctx context.Context) (*DashboardStats, error) {
-    return s.dashboardRepo.GetStatistics(ctx)
+func NewInvoiceService(repo *repository.InvoiceRepository) *InvoiceService {
+    return &InvoiceService{repo: repo}
 }
 
-func (s *InvoiceService) GeneratePDF(ctx context.Context, invoiceID int) ([]byte, error) {
+type CreateInvoiceRequest struct {
+    CustomerDetails struct {
+        Name    string `json:"name"`
+        Email   string `json:"email"`
+        Phone   string `json:"phone"`
+    } `json:"customer_details"`
+    Items []struct {
+        Description string  `json:"description"`
+        Quantity    int     `json:"quantity"`
+        Rate       float64 `json:"rate"`
+    } `json:"items"`
+    Currency    string    `json:"currency"`
+    IssueDate   time.Time `json:"issue_date"`
+    DueDate     time.Time `json:"due_date"`
+    Notes       string    `json:"notes"`
+}
+
+func (s *InvoiceService) CreateInvoice(ctx context.Context, req *CreateInvoiceRequest, senderID int64) (*repository.Invoice, error) {
+    // Start transaction
+    tx, err := s.repo.BeginTx(ctx)
+    if err != nil {
+        return nil, fmt.Errorf("failed to start transaction: %w", err)
+    }
+    defer tx.Rollback()
+
+    // Calculate total amount
+    var totalAmount float64
+    for _, item := range req.Items {
+        totalAmount += float64(item.Quantity) * item.Rate
+    }
+
+    // Create or get customer
+    customerID, err := s.userRepo.CreateOrGetCustomer(ctx, req.CustomerDetails)
+    if err != nil {
+        return nil, fmt.Errorf("failed to process customer: %w", err)
+    }
+
+    // Create invoice
+    invoice := &repository.Invoice{
+        ReferenceNumber: generateReferenceNumber(),
+        SenderID:       senderID,
+        CustomerID:     customerID,
+        Amount:         totalAmount,
+        Currency:       req.Currency,
+        Status:         "draft",
+        IssueDate:      req.IssueDate,
+        DueDate:        req.DueDate,
+        Notes:          req.Notes,
+    }
+
+    if err := s.repo.CreateTx(ctx, tx, invoice); err != nil {
+        return nil, fmt.Errorf("failed to create invoice: %w", err)
+    }
+
+    // Create invoice items
+    for _, item := range req.Items {
+        if err := s.repo.CreateInvoiceItem(ctx, tx, invoice.ID, item); err != nil {
+            return nil, fmt.Errorf("failed to create invoice item: %w", err)
+        }
+    }
+
+    if err := tx.Commit(); err != nil {
+        return nil, fmt.Errorf("failed to commit transaction: %w", err)
+    }
+
+    return invoice, nil
+}
+func generateReferenceNumber() string {
+    return fmt.Sprintf("INV-%d", time.Now().Unix())
+}
+
+func (s *InvoiceService) UpdateInvoiceStatus(ctx context.Context, invoiceID int64, userID int64, status string) error {
+    // Verify invoice ownership
     invoice, err := s.repo.GetByID(ctx, invoiceID)
     if err != nil {
-        return nil, err
+        return fmt.Errorf("failed to get invoice: %w", err)
+    }
+    if invoice.SenderID != userID {
+        return fmt.Errorf("unauthorized: invoice belongs to different user")
     }
 
-    pdf := gofpdf.New("P", "mm", "A4", "")
-    pdf.AddPage()
-    // Add invoice details to PDF
-    pdf.SetFont("Arial", "B", 16)
-    pdf.Cell(40, 10, fmt.Sprintf("Invoice #%s", invoice.ReferenceNumber))
-    
-    return pdf.Output()
-}
+    // Validate status transition
+    if !isValidStatusTransition(invoice.Status, status) {
+        return fmt.Errorf("invalid status transition from %s to %s", invoice.Status, status)
+    }
 
-func (s *InvoiceService) GenerateShareableLink(ctx context.Context, invoiceID int) (string, error) {
-    // Generate secure token
-    token := generateSecureToken()
-    
-    // Store token with expiry
-    err := s.repo.StoreShareableLink(ctx, invoiceID, token)
+    tx, err := s.repo.BeginTx(ctx)
     if err != nil {
-        return "", err
+        return fmt.Errorf("failed to start transaction: %w", err)
     }
-    
-    return fmt.Sprintf("/invoice/share/%s", token), nil
-}
+    defer tx.Rollback()
 
-func (s *InvoiceService) UpdateStatus(ctx context.Context, invoiceID int, newStatus string) error {
-    err := s.repo.UpdateStatus(ctx, invoiceID, newStatus)
-    if err != nil {
-        return err
-    }
+    // Update status
+    invoice.Status = status
+    invoice.UpdatedAt = time.Now()
     
+    if err := s.repo.UpdateInvoiceTx(ctx, tx, invoice); err != nil {
+        return fmt.Errorf("failed to update invoice: %w", err)
+    }
+
     // Log activity
-    s.activityRepo.LogActivity(ctx, &ent.ActivityLog{
-        ActionType: "status_update",
-        Description: fmt.Sprintf("Invoice status updated to %s", newStatus),
-    })
+    activity := &repository.Activity{
+        UserID:    userID,
+        InvoiceID: invoiceID,
+        Action:    fmt.Sprintf("status_updated_to_%s", status),
+        Details:   fmt.Sprintf("Invoice status updated to %s", status),
+    }
     
+    if err := s.repo.LogActivityTx(ctx, tx, activity); err != nil {
+        return fmt.Errorf("failed to log activity: %w", err)
+    }
+
+    if err := tx.Commit(); err != nil {
+        return fmt.Errorf("failed to commit transaction: %w", err)
+    }
+
+    // Send notification after successful update
+    go s.notificationService.SendInvoiceStatusUpdate(invoice, status)
+
     return nil
+}
+
+func isValidStatusTransition(from, to string) bool {
+    transitions := map[string][]string{
+        "draft":   {"pending"},
+        "pending": {"paid", "overdue"},
+        "paid":    {},
+        "overdue": {"paid"},
+    }
+    
+    allowedTransitions, exists := transitions[from]
+    if !exists {
+        return false
+    }
+    
+    for _, allowed := range allowedTransitions {
+        if allowed == to {
+            return true
+        }
+    }
+    return false
 }

@@ -1,27 +1,33 @@
 package handlers
 
 import (
-    "github.com/gofiber/fiber/v2"
+    "encoding/json"
+    "net/http"
     "github.com/Tabintel/invoice-system/internal/service"
 )
 
 type DashboardHandler struct {
-    dashboardService *service.DashboardService
+    service *service.DashboardService
 }
 
-// @Summary Get dashboard statistics
-// @Description Get overview of invoices and payments
-// @Tags dashboard
-// @Security BearerAuth
-// @Produce json
-// @Success 200 {object} DashboardResponse
-// @Router /dashboard [get]
-func (h *DashboardHandler) GetStats(c *fiber.Ctx) error {
-    stats, err := h.dashboardService.GetStats(c.Context())
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to fetch dashboard stats",
-        })
+func NewDashboardHandler(service *service.DashboardService) *DashboardHandler {
+    return &DashboardHandler{service: service}
+}
+
+func (h *DashboardHandler) GetDashboard(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
     }
-    return c.JSON(stats)
+
+    userID := r.Context().Value("user_id").(int64)
+
+    dashboard, err := h.service.GetDashboard(r.Context(), userID)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(dashboard)
 }

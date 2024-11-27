@@ -1,59 +1,60 @@
 package handlers
 
 import (
+    "encoding/json"
     "net/http"
-    "github.com/gofiber/fiber/v2"
     "github.com/Tabintel/invoice-system/internal/service"
 )
 
 type InvoiceHandler struct {
-    invoiceService *service.InvoiceService
+    service *service.InvoiceService
 }
 
-func NewInvoiceHandler(invoiceService *service.InvoiceService) *InvoiceHandler {
-    return &InvoiceHandler{
-        invoiceService: invoiceService,
-    }
+func NewInvoiceHandler(service *service.InvoiceService) *InvoiceHandler {
+    return &InvoiceHandler{service: service}
 }
 
-// @Summary Create new invoice
-// @Description Create a new invoice in the system
-// @Tags invoices
-// @Accept json
-// @Produce json
-// @Param invoice body CreateInvoiceRequest true "Invoice details"
-// @Success 201 {object} ent.Invoice
-// @Router /invoices [post]
-func (h *InvoiceHandler) CreateInvoice(c *fiber.Ctx) error {
-    var req CreateInvoiceRequest
-    if err := c.BodyParser(&req); err != nil {
-        return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-            "error": "Invalid request body",
-        })
+func (h *InvoiceHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
+    userID := r.Context().Value("user_id").(int64)
+
+    var req struct {
+        CustomerDetails struct {
+            Name    string `json:"name"`
+            Email   string `json:"email"`
+            Phone   string `json:"phone"`
+        } `json:"customer_details"`
+        Items []struct {
+            Description string  `json:"description"`
+            Quantity    int     `json:"quantity"`
+            Rate       float64 `json:"rate"`
+        } `json:"items"`
+        Currency    string    `json:"currency"`
+        IssueDate   time.Time `json:"issue_date"`
+        DueDate     time.Time `json:"due_date"`
+        Notes       string    `json:"notes"`
     }
 
-    input := service.CreateInvoiceInput{
-        Amount:     req.Amount,
-        Currency:   req.Currency,
-        DueDate:    req.DueDate,
-        Notes:      req.Notes,
-        CustomerID: req.CustomerID,
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
     }
 
-    invoice, err := h.invoiceService.CreateInvoice(c.Context(), input)
+    invoice, err := h.service.CreateInvoice(r.Context(), &service.CreateInvoiceRequest{
+        SenderID:        userID,
+        CustomerDetails: req.CustomerDetails,
+        Items:          req.Items,
+        Currency:       req.Currency,
+        IssueDate:      req.IssueDate,
+        DueDate:        req.DueDate,
+        Notes:          req.Notes,
+    })
+
     if err != nil {
-        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-            "error": err.Error(),
-        })
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
     }
 
-    return c.Status(http.StatusCreated).JSON(invoice)
-}
-
-type CreateInvoiceRequest struct {
-    Amount     float64   `json:"amount"`
-    Currency   string    `json:"currency"`
-    DueDate    time.Time `json:"due_date"`
-    Notes      string    `json:"notes"`
-    CustomerID int       `json:"customer_id"`
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(invoice)
 }
