@@ -1,0 +1,46 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Invoice System API",
+        "version": "1.0.0",
+        "description": "Modern invoice management system API"
+    },
+    "paths": {
+        "/api/invoices": {
+            "post": {
+                "summary": "Create new invoice",
+                "tags": ["invoices"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateInvoiceInput"
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "List all invoices",
+                "tags": ["invoices"]
+            }
+        },
+        "/api/invoices/{id}/status": {
+            "put": {
+                "summary": "Update invoice status",
+                "tags": ["invoices"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

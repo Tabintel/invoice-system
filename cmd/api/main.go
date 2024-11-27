@@ -9,13 +9,13 @@ import (
     "github.com/Tabintel/invoice-system/internal/database"
     "github.com/Tabintel/invoice-system/internal/server"
     httpSwagger "github.com/swaggo/http-swagger"
-    _ "github.com/Tabintel/invoice-system/docs"
+    _ "github.com/Tabintel/invoice-system/internal/docs"
 )
 
 // @title Invoice System API
 // @version 1.0
 // @description A modern invoice management system API
-// @host invoice-system-api.onrender.com
+// @host localhost:8080
 // @BasePath /api
 func main() {
     if err := godotenv.Load(); err != nil {

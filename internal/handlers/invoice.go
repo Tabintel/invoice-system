@@ -17,13 +17,8 @@ func NewInvoiceHandler(service *services.InvoiceService) *InvoiceHandler {
     return &InvoiceHandler{service: service}
 }
 
-// @title Invoice System API
-// @version 1.0
-// @description API for invoice management system
-// @host api.invoice-system.onrender.com
-// @BasePath /api
-
-// @Summary Create new invoice
+// @Summary Create invoice
+// @Description Create a new invoice
 // @Tags invoices
 // @Accept json
 // @Produce json
@@ -54,6 +49,13 @@ func (h *InvoiceHandler) Create() http.HandlerFunc {
         })
     }
 }
+
+// @Summary List invoices
+// @Description Get all invoices with optional filters
+// @Tags invoices
+// @Produce json
+// @Success 200 {array} ent.Invoice
+// @Router /invoices [get]
 func (h *InvoiceHandler) List() http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         input := services.ListInvoicesInput{
@@ -87,7 +89,6 @@ func (h *InvoiceHandler) List() http.HandlerFunc {
         })
     }
 }
-
 func (h *InvoiceHandler) UpdateStatus() http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         idStr := chi.URLParam(r, "id")
