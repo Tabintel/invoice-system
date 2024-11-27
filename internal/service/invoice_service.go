@@ -8,11 +8,13 @@ import (
 )
 
 type InvoiceService struct {
-    repo *repository.InvoiceRepository
+    repo               *repository.Repository
+    userRepo           *repository.Repository
+    notificationService *NotificationService
 }
 
-func NewInvoiceService(repo *repository.InvoiceRepository) *InvoiceService {
-    return &InvoiceService{repo: repo}
+func NewInvoiceService(repo *repository.Repository, userRepo *repository.Repository, notificationService *NotificationService) *InvoiceService {
+    return &InvoiceService{repo: repo, userRepo: userRepo, notificationService: notificationService}
 }
 
 type CreateInvoiceRequest struct {

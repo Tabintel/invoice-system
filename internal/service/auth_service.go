@@ -3,6 +3,7 @@ package service
 import (
     "context"
     "errors"
+    "os"
     "time"
     "github.com/dgrijalva/jwt-go"
     "golang.org/x/crypto/bcrypt"
@@ -17,37 +18,27 @@ func NewAuthService(repo *repository.Repository) *AuthService {
     return &AuthService{repo: repo}
 }
 
-type LoginRequest struct {
-    Email    string `json:"email"`
-    Password string `json:"password"`
-}
-
-func (s *AuthService) Login(ctx context.Context, req *LoginRequest) (string, error) {
-    user, err := s.repo.GetByEmail(ctx, req.Email)
+func (s *AuthService) Login(ctx context.Context, email, password string) (string, error) {
+    user, err := s.repo.GetByEmail(ctx, email)
     if err != nil {
         return "", errors.New("invalid credentials")
     }
 
-    if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+    if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
         return "", errors.New("invalid credentials")
     }
 
-    claims := &middleware.Claims{
-        UserID: user.ID,
-        Role:   user.Role,
-        StandardClaims: jwt.StandardClaims{
-            ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
-            IssuedAt:  time.Now().Unix(),
-        },
-    }
+    token := jwt.New(jwt.SigningMethodHS256)
+    claims := token.Claims.(jwt.MapClaims)
+    claims["user_id"] = user.ID
+    claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    signedToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+    tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
     if err != nil {
-        return "", errors.New("failed to generate token")
+        return "", err
     }
 
-    return signedToken, nil
+    return tokenString, nil
 }
 
 type RegisterRequest struct {

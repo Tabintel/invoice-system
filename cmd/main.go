@@ -25,16 +25,20 @@ func main() {
     defer db.Close()
 
     // Initialize repositories
-    invoiceRepo := repository.NewInvoiceRepository(db)
-    userRepo := repository.NewUserRepository(db)
+    repo := repository.NewRepository(db)
 
     // Initialize services
-    authService := service.NewAuthService(userRepo)
-    invoiceService := service.NewInvoiceService(invoiceRepo, userRepo)
-    dashboardService := service.NewDashboardService(invoiceRepo, userRepo)
-    activityService := service.NewActivityService(invoiceRepo)
-    pdfService := service.NewPDFService(invoiceRepo)
-    shareService := service.NewShareService(invoiceRepo)
+    authService := service.NewAuthService(repo)
+    invoiceService := service.NewInvoiceService(repo, repo, nil)
+    dashboardService := service.NewDashboardService(repo)
+    activityService := service.NewActivityService(repo)
+    pdfService := service.NewPDFService(repo)
+    notificationService := service.NewNotificationService(
+        os.Getenv("SMTP_EMAIL"),
+        os.Getenv("SMTP_PASSWORD"),
+        os.Getenv("SMTP_HOST"),
+        os.Getenv("SMTP_PORT"),
+    )
 
     // Initialize handlers
     authHandler := handlers.NewAuthHandler(authService)
@@ -42,29 +46,32 @@ func main() {
     dashboardHandler := handlers.NewDashboardHandler(dashboardService)
     activityHandler := handlers.NewActivityHandler(activityService)
     pdfHandler := handlers.NewPDFHandler(pdfService, invoiceService)
-    shareHandler := handlers.NewShareHandler(shareService, invoiceService)
 
+    // Middleware
+    jwtMiddleware := middleware.JWTAuth(os.Getenv("JWT_SECRET"))
+    
     // Router setup
     router := http.NewServeMux()
 
     // Public routes
     router.HandleFunc("/api/v1/auth/login", authHandler.Login)
     router.HandleFunc("/api/v1/auth/register", authHandler.Register)
-    router.HandleFunc("/api/v1/invoices/shared", shareHandler.GetSharedInvoice) // Public shared invoice access
+    router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+        w.WriteHeader(http.StatusOK)
+        w.Write([]byte("OK"))
+    })
 
     // Protected routes
     protected := http.NewServeMux()
     protected.HandleFunc("/api/v1/dashboard", dashboardHandler.GetDashboard)
     protected.HandleFunc("/api/v1/invoices", invoiceHandler.CreateInvoice)
     protected.HandleFunc("/api/v1/invoices/pdf", pdfHandler.GenerateInvoicePDF)
-    protected.HandleFunc("/api/v1/invoices/share", shareHandler.GenerateShareableLink)
     protected.HandleFunc("/api/v1/activities", activityHandler.GetRecentActivities)
 
     // Apply JWT middleware to protected routes
-    jwtMiddleware := middleware.JWTAuth(os.Getenv("JWT_SECRET"))
     router.Handle("/api/v1/", jwtMiddleware(protected))
 
-    // Apply CORS middleware
+    // CORS middleware
     corsHandler := middleware.CORS(router)
 
     port := os.Getenv("PORT")
@@ -72,7 +79,12 @@ func main() {
         port = "8080"
     }
 
-    log.Println("Successfully connected to database")
+    server := &http.Server{
+        Addr:    ":" + port,
+        Handler: corsHandler,
+    }
+
+    //log.Println("Successfully connected to database")
     log.Printf("Server starting on port %s", port)
-    log.Fatal(http.ListenAndServe(":"+port, corsHandler))
+    log.Fatal(server.ListenAndServe())
 }

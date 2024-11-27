@@ -2,16 +2,17 @@ package service
 
 import (
     "bytes"
+    "fmt"
     "github.com/jung-kurt/gofpdf"
     "github.com/Tabintel/invoice-system/internal/repository"
 )
 
 type PDFService struct {
-    invoiceRepo *repository.InvoiceRepository
+    repo *repository.Repository
 }
 
-func NewPDFService(invoiceRepo *repository.InvoiceRepository) *PDFService {
-    return &PDFService{invoiceRepo: invoiceRepo}
+func NewPDFService(repo *repository.Repository) *PDFService {
+    return &PDFService{repo: repo}
 }
 
 func (s *PDFService) GenerateInvoicePDF(invoice *repository.Invoice, sender, customer *repository.User) (*bytes.Buffer, error) {
