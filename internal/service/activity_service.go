@@ -2,16 +2,14 @@ package service
 
 import (
     "context"
-    "database/sql"
-    "time"
     "github.com/Tabintel/invoice-system/internal/repository"
 )
 
 type ActivityService struct {
-    repo *repository.InvoiceRepository
+    repo *repository.Repository
 }
 
-func NewActivityService(repo *repository.InvoiceRepository) *ActivityService {
+func NewActivityService(repo *repository.Repository) *ActivityService {
     return &ActivityService{repo: repo}
 }
 

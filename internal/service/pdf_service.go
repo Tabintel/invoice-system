@@ -2,9 +2,8 @@ package service
 
 import (
     "bytes"
-    "fmt"
-    "time"
     "github.com/jung-kurt/gofpdf"
+    "github.com/Tabintel/invoice-system/internal/repository"
 )
 
 type PDFService struct {
