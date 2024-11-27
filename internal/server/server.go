@@ -58,11 +58,12 @@ func (s *Server) setupRoutes() {
 
          // Swagger UI setup
          //s.router.Get("/swagger/*", httpSwagger.Handler(
-            httpSwagger.URL("/swagger/doc.json"),
+           // httpSwagger.URL("/swagger/doc.json"),
         //))
 
         
     }
+
 func (s *Server) handleHealth() http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusOK)
