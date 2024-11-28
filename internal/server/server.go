@@ -68,6 +68,8 @@ func (s *Server) setupRoutes() {
         s.router.Get("/api/customers", customerHandler.List())
         s.router.Get("/api/customers/{id}", customerHandler.Get())
         s.router.Put("/api/customers/{id}", customerHandler.Update())
+        s.router.Delete("/api/customers/{id}", customerHandler.Delete())
+
 
     }
 

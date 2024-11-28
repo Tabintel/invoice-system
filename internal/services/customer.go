@@ -55,3 +55,7 @@ func (s *CustomerService) UpdateCustomer(ctx context.Context, id int, input Upda
         SetAddress(input.Address).
         Save(ctx)
 }
+
+func (s *CustomerService) DeleteCustomer(ctx context.Context, id int) error {
+    return s.db.Customer.DeleteOneID(id).Exec(ctx)
+}

@@ -111,3 +111,26 @@ func (h *CustomerHandler) Update() http.HandlerFunc {
         })
     }
 }
+
+func (h *CustomerHandler) Delete() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+        
+        err := h.service.DeleteCustomer(r.Context(), id)
+        if err != nil {
+            if ent.IsNotFound(err) {
+                http.Error(w, "Customer not found", http.StatusNotFound)
+                return
+            }
+            log.Printf("Error deleting customer: %v", err)
+            http.Error(w, "Failed to delete customer", http.StatusInternalServerError)
+            return
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "status": "success",
+            "message": "Customer deleted successfully",
+        })
+    }
+}
