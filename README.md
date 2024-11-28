@@ -1,9 +1,45 @@
 ## Invoice System Endpoints
 
-The Numeris Book Invoice System provides a RESTful API to manage invoices and customers efficiently. Here is the list of 11 core endpoints, along with their payloads, responses, and usage.
+This Go Invoice System provides a RESTful API to manage invoices and customers efficiently. The API allows you to perform various operations, including creating invoices, managing customers, and generating PDF invoices.
 
+---
+
+### Tech Stack
+
+- **[Go](https://go.dev/):** The primary programming language for the application.  
+- **[Chi Router](https://github.com/go-chi/chi):** A lightweight and idiomatic router for building HTTP services in Go.  
+- **[Ent](https://entgo.io/):** An ORM for Go, providing powerful and easy-to-use database interaction tools.  
+- **[PostgreSQL with Neon](https://neon.tech/):** A serverless database built for modern applications.  
+- **[GoPDF Library](https://github.com/signintech/gopdf):** A library for generating PDF documents in Go.  
+
+---
+
+### How to Get Started
+
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/Tabintel/invoice-system.git
+   cd invoice-system
+   ```
+
+2. Install dependencies:  
+   ```bash
+   go mod tidy
+   ```
+
+3. Run the application:  
+   ```bash
+   go run cmd/api/main.go
+   ```
+
+--- 
 
 Base URL: http://localhost:8080
+
+Here is the list of 11 core endpoints, along with their payloads, responses, and usage.
+
+
+
 
 ### Health Check
 - **Method:** GET
