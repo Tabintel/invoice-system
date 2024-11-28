@@ -82,3 +82,32 @@ func (h *CustomerHandler) Get() http.HandlerFunc {
         })
     }
 }
+
+func (h *CustomerHandler) Update() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+        
+        var input services.UpdateCustomerInput
+        if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+            http.Error(w, "Invalid request body", http.StatusBadRequest)
+            return
+        }
+
+        customer, err := h.service.UpdateCustomer(r.Context(), id, input)
+        if err != nil {
+            if ent.IsNotFound(err) {
+                http.Error(w, "Customer not found", http.StatusNotFound)
+                return
+            }
+            log.Printf("Error updating customer: %v", err)
+            http.Error(w, "Failed to update customer", http.StatusInternalServerError)
+            return
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "status": "success",
+            "data":   customer,
+        })
+    }
+}
