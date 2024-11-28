@@ -128,3 +128,7 @@ func (s *InvoiceService) UpdateStatus(ctx context.Context, id int, input UpdateI
         SetStatus(input.Status).
         Save(ctx)
 }
+
+func (s *InvoiceService) GetInvoice(ctx context.Context, id int) (*ent.Invoice, error) {
+    return s.db.Invoice.Get(ctx, id)
+}

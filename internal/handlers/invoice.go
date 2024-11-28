@@ -2,13 +2,13 @@ package handlers
 
 import (
     "encoding/json"
+    "fmt"
     "net/http"
     "log"
     "strconv"
     "github.com/go-chi/chi/v5"
     "github.com/Tabintel/invoice-system/internal/services"
 )
-
 type InvoiceHandler struct {
     service *services.InvoiceService
 }
@@ -121,3 +121,26 @@ func (h *InvoiceHandler) UpdateStatus() http.HandlerFunc {
 
 
 
+
+func (h *InvoiceHandler) DownloadPDF() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+        
+        invoice, err := h.service.GetInvoice(r.Context(), id)
+        if err != nil {
+            http.Error(w, "Invoice not found", http.StatusNotFound)
+            return
+        }
+        
+        pdfService := services.NewPDFService(h.service)
+        pdfBytes, err := pdfService.GenerateInvoicePDF(invoice)
+        if err != nil {
+            http.Error(w, "Failed to generate PDF", http.StatusInternalServerError)
+            return
+        }
+        
+        w.Header().Set("Content-Type", "application/pdf")
+        w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", invoice.ReferenceNumber))
+        w.Write(pdfBytes)
+    }
+}
