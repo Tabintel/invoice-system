@@ -32,13 +32,9 @@ This Go Invoice System provides a RESTful API to manage invoices and customers e
    go run cmd/api/main.go
    ```
 
---- 
-
 Base URL: http://localhost:8080
 
-Here is the list of 11 core endpoints, along with their payloads, responses, and usage.
-
-
+-----
 
 
 ### Health Check
@@ -54,6 +50,8 @@ Here is the list of 11 core endpoints, along with their payloads, responses, and
   ```
 
 -------------
+
+Here is the list of 11 core endpoints, along with their payloads, responses, and usage.
 
 ### 1. Create Invoice
 - **Method:** POST
