@@ -4,6 +4,9 @@ import (
     "encoding/json"
     "net/http"
     "log"
+    "strconv"
+    "github.com/go-chi/chi/v5"
+    "github.com/Tabintel/invoice-system/ent"
     "github.com/Tabintel/invoice-system/internal/services"
 )
 
@@ -53,6 +56,29 @@ func (h *CustomerHandler) List() http.HandlerFunc {
         json.NewEncoder(w).Encode(map[string]interface{}{
             "status": "success",
             "data":   customers,
+        })
+    }
+}
+
+func (h *CustomerHandler) Get() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+        
+        customer, err := h.service.GetCustomer(r.Context(), id)
+        if err != nil {
+            if ent.IsNotFound(err) {
+                http.Error(w, "Customer not found", http.StatusNotFound)
+                return
+            }
+            log.Printf("Error getting customer: %v", err)
+            http.Error(w, "Failed to get customer", http.StatusInternalServerError)
+            return
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "status": "success",
+            "data":   customer,
         })
     }
 }

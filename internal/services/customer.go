@@ -35,3 +35,7 @@ func (s *CustomerService) ListCustomers(ctx context.Context) ([]*ent.Customer, e
         Order(ent.Desc(customer.FieldCreatedAt)).
         All(ctx)
 }
+
+func (s *CustomerService) GetCustomer(ctx context.Context, id int) (*ent.Customer, error) {
+    return s.db.Customer.Get(ctx, id)
+}

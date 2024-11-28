@@ -66,6 +66,7 @@ func (s *Server) setupRoutes() {
     
         s.router.Post("/api/customers", customerHandler.Create())
         s.router.Get("/api/customers", customerHandler.List())
+        s.router.Get("/api/customers/{id}", customerHandler.Get())
     }
 
 func (s *Server) handleHealth() http.HandlerFunc {
