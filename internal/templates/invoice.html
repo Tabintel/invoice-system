@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice {{.Invoice.ReferenceNumber}}</title>
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            line-height: 1.6; 
+            margin: 40px;
+            background: #f8f9fa;
+        }
+        .invoice-container {
+            background: white;
+            padding: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .invoice-header { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 40px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        .amount { 
+            font-size: 28px; 
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .status { 
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .status-draft { background: #e9ecef; color: #495057; }
+        .status-paid { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        
+        .items-table {
+            width: 100%;
+            margin-top: 30px;
+        }
+        .items-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div>
+                <h1>{{.CompanyName}}</h1>
+                <p>Invoice #{{.Invoice.ReferenceNumber}}</p>
+            </div>
+            <div class="amount">
+                {{.Invoice.Currency}} {{.Invoice.TotalAmount}}
+            </div>
+        </div>
+        
+        <div class="status status-{{.Invoice.Status}}">
+            {{.Invoice.Status}}
+        </div>
+        
+        <div class="invoice-details">
+            <p><strong>Issue Date:</strong> {{.Invoice.IssueDate.Format "Jan 02, 2006"}}</p>
+            <p><strong>Due Date:</strong> {{.Invoice.DueDate.Format "Jan 02, 2006"}}</p>
+        </div>
+
+        <table class="items-table">
+            <tr>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Amount</th>
+            </tr>
+            {{range .Invoice.Items}}
+            <tr>
+                <td>{{.Description}}</td>
+                <td>{{.Quantity}}</td>
+                <td>{{.Rate}}</td>
+                <td>{{.Amount}}</td>
+            </tr>
+            {{end}}
+        </table>
+    </div>
+</body>
+</html>

@@ -137,6 +137,46 @@ func (iu *InvoiceUpdate) SetNillableCreatedAt(t *time.Time) *InvoiceUpdate {
 	return iu
 }
 
+// SetShareToken sets the "share_token" field.
+func (iu *InvoiceUpdate) SetShareToken(s string) *InvoiceUpdate {
+	iu.mutation.SetShareToken(s)
+	return iu
+}
+
+// SetNillableShareToken sets the "share_token" field if the given value is not nil.
+func (iu *InvoiceUpdate) SetNillableShareToken(s *string) *InvoiceUpdate {
+	if s != nil {
+		iu.SetShareToken(*s)
+	}
+	return iu
+}
+
+// ClearShareToken clears the value of the "share_token" field.
+func (iu *InvoiceUpdate) ClearShareToken() *InvoiceUpdate {
+	iu.mutation.ClearShareToken()
+	return iu
+}
+
+// SetShareExpiry sets the "share_expiry" field.
+func (iu *InvoiceUpdate) SetShareExpiry(t time.Time) *InvoiceUpdate {
+	iu.mutation.SetShareExpiry(t)
+	return iu
+}
+
+// SetNillableShareExpiry sets the "share_expiry" field if the given value is not nil.
+func (iu *InvoiceUpdate) SetNillableShareExpiry(t *time.Time) *InvoiceUpdate {
+	if t != nil {
+		iu.SetShareExpiry(*t)
+	}
+	return iu
+}
+
+// ClearShareExpiry clears the value of the "share_expiry" field.
+func (iu *InvoiceUpdate) ClearShareExpiry() *InvoiceUpdate {
+	iu.mutation.ClearShareExpiry()
+	return iu
+}
+
 // SetCreatorID sets the "creator" edge to the User entity by ID.
 func (iu *InvoiceUpdate) SetCreatorID(id int) *InvoiceUpdate {
 	iu.mutation.SetCreatorID(id)
@@ -323,6 +363,18 @@ func (iu *InvoiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := iu.mutation.CreatedAt(); ok {
 		_spec.SetField(invoice.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := iu.mutation.ShareToken(); ok {
+		_spec.SetField(invoice.FieldShareToken, field.TypeString, value)
+	}
+	if iu.mutation.ShareTokenCleared() {
+		_spec.ClearField(invoice.FieldShareToken, field.TypeString)
+	}
+	if value, ok := iu.mutation.ShareExpiry(); ok {
+		_spec.SetField(invoice.FieldShareExpiry, field.TypeTime, value)
+	}
+	if iu.mutation.ShareExpiryCleared() {
+		_spec.ClearField(invoice.FieldShareExpiry, field.TypeTime)
 	}
 	if iu.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -597,6 +649,46 @@ func (iuo *InvoiceUpdateOne) SetNillableCreatedAt(t *time.Time) *InvoiceUpdateOn
 	return iuo
 }
 
+// SetShareToken sets the "share_token" field.
+func (iuo *InvoiceUpdateOne) SetShareToken(s string) *InvoiceUpdateOne {
+	iuo.mutation.SetShareToken(s)
+	return iuo
+}
+
+// SetNillableShareToken sets the "share_token" field if the given value is not nil.
+func (iuo *InvoiceUpdateOne) SetNillableShareToken(s *string) *InvoiceUpdateOne {
+	if s != nil {
+		iuo.SetShareToken(*s)
+	}
+	return iuo
+}
+
+// ClearShareToken clears the value of the "share_token" field.
+func (iuo *InvoiceUpdateOne) ClearShareToken() *InvoiceUpdateOne {
+	iuo.mutation.ClearShareToken()
+	return iuo
+}
+
+// SetShareExpiry sets the "share_expiry" field.
+func (iuo *InvoiceUpdateOne) SetShareExpiry(t time.Time) *InvoiceUpdateOne {
+	iuo.mutation.SetShareExpiry(t)
+	return iuo
+}
+
+// SetNillableShareExpiry sets the "share_expiry" field if the given value is not nil.
+func (iuo *InvoiceUpdateOne) SetNillableShareExpiry(t *time.Time) *InvoiceUpdateOne {
+	if t != nil {
+		iuo.SetShareExpiry(*t)
+	}
+	return iuo
+}
+
+// ClearShareExpiry clears the value of the "share_expiry" field.
+func (iuo *InvoiceUpdateOne) ClearShareExpiry() *InvoiceUpdateOne {
+	iuo.mutation.ClearShareExpiry()
+	return iuo
+}
+
 // SetCreatorID sets the "creator" edge to the User entity by ID.
 func (iuo *InvoiceUpdateOne) SetCreatorID(id int) *InvoiceUpdateOne {
 	iuo.mutation.SetCreatorID(id)
@@ -813,6 +905,18 @@ func (iuo *InvoiceUpdateOne) sqlSave(ctx context.Context) (_node *Invoice, err e
 	}
 	if value, ok := iuo.mutation.CreatedAt(); ok {
 		_spec.SetField(invoice.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := iuo.mutation.ShareToken(); ok {
+		_spec.SetField(invoice.FieldShareToken, field.TypeString, value)
+	}
+	if iuo.mutation.ShareTokenCleared() {
+		_spec.ClearField(invoice.FieldShareToken, field.TypeString)
+	}
+	if value, ok := iuo.mutation.ShareExpiry(); ok {
+		_spec.SetField(invoice.FieldShareExpiry, field.TypeTime, value)
+	}
+	if iuo.mutation.ShareExpiryCleared() {
+		_spec.ClearField(invoice.FieldShareExpiry, field.TypeTime)
 	}
 	if iuo.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{

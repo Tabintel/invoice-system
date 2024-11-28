@@ -22,9 +22,12 @@ func (Invoice) Fields() []ent.Field {
 		field.Time("due_date"),
 		field.String("currency").Default("USD"),
 		field.Time("created_at").Default(time.Now),
+		field.String("share_token").
+			Optional(),
+		field.Time("share_expiry").
+			Optional(),
 	}
 }
-
 // Edges of the Invoice.
 func (Invoice) Edges() []ent.Edge {
 	return []ent.Edge{

@@ -90,6 +90,34 @@ func (ic *InvoiceCreate) SetNillableCreatedAt(t *time.Time) *InvoiceCreate {
 	return ic
 }
 
+// SetShareToken sets the "share_token" field.
+func (ic *InvoiceCreate) SetShareToken(s string) *InvoiceCreate {
+	ic.mutation.SetShareToken(s)
+	return ic
+}
+
+// SetNillableShareToken sets the "share_token" field if the given value is not nil.
+func (ic *InvoiceCreate) SetNillableShareToken(s *string) *InvoiceCreate {
+	if s != nil {
+		ic.SetShareToken(*s)
+	}
+	return ic
+}
+
+// SetShareExpiry sets the "share_expiry" field.
+func (ic *InvoiceCreate) SetShareExpiry(t time.Time) *InvoiceCreate {
+	ic.mutation.SetShareExpiry(t)
+	return ic
+}
+
+// SetNillableShareExpiry sets the "share_expiry" field if the given value is not nil.
+func (ic *InvoiceCreate) SetNillableShareExpiry(t *time.Time) *InvoiceCreate {
+	if t != nil {
+		ic.SetShareExpiry(*t)
+	}
+	return ic
+}
+
 // SetCreatorID sets the "creator" edge to the User entity by ID.
 func (ic *InvoiceCreate) SetCreatorID(id int) *InvoiceCreate {
 	ic.mutation.SetCreatorID(id)
@@ -283,6 +311,14 @@ func (ic *InvoiceCreate) createSpec() (*Invoice, *sqlgraph.CreateSpec) {
 	if value, ok := ic.mutation.CreatedAt(); ok {
 		_spec.SetField(invoice.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := ic.mutation.ShareToken(); ok {
+		_spec.SetField(invoice.FieldShareToken, field.TypeString, value)
+		_node.ShareToken = value
+	}
+	if value, ok := ic.mutation.ShareExpiry(); ok {
+		_spec.SetField(invoice.FieldShareExpiry, field.TypeTime, value)
+		_node.ShareExpiry = value
 	}
 	if nodes := ic.mutation.CreatorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

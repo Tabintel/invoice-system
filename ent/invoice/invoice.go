@@ -28,6 +28,10 @@ const (
 	FieldCurrency = "currency"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldShareToken holds the string denoting the share_token field in the database.
+	FieldShareToken = "share_token"
+	// FieldShareExpiry holds the string denoting the share_expiry field in the database.
+	FieldShareExpiry = "share_expiry"
 	// EdgeCreator holds the string denoting the creator edge name in mutations.
 	EdgeCreator = "creator"
 	// EdgeItems holds the string denoting the items edge name in mutations.
@@ -78,6 +82,8 @@ var Columns = []string{
 	FieldDueDate,
 	FieldCurrency,
 	FieldCreatedAt,
+	FieldShareToken,
+	FieldShareExpiry,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "invoices"
@@ -152,6 +158,16 @@ func ByCurrency(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByShareToken orders the results by the share_token field.
+func ByShareToken(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShareToken, opts...).ToFunc()
+}
+
+// ByShareExpiry orders the results by the share_expiry field.
+func ByShareExpiry(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShareExpiry, opts...).ToFunc()
 }
 
 // ByCreatorField orders the results by creator field.

@@ -90,6 +90,16 @@ func CreatedAt(v time.Time) predicate.Invoice {
 	return predicate.Invoice(sql.FieldEQ(FieldCreatedAt, v))
 }
 
+// ShareToken applies equality check predicate on the "share_token" field. It's identical to ShareTokenEQ.
+func ShareToken(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldEQ(FieldShareToken, v))
+}
+
+// ShareExpiry applies equality check predicate on the "share_expiry" field. It's identical to ShareExpiryEQ.
+func ShareExpiry(v time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldEQ(FieldShareExpiry, v))
+}
+
 // ReferenceNumberEQ applies the EQ predicate on the "reference_number" field.
 func ReferenceNumberEQ(v string) predicate.Invoice {
 	return predicate.Invoice(sql.FieldEQ(FieldReferenceNumber, v))
@@ -443,6 +453,131 @@ func CreatedAtLT(v time.Time) predicate.Invoice {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.Invoice {
 	return predicate.Invoice(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// ShareTokenEQ applies the EQ predicate on the "share_token" field.
+func ShareTokenEQ(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldEQ(FieldShareToken, v))
+}
+
+// ShareTokenNEQ applies the NEQ predicate on the "share_token" field.
+func ShareTokenNEQ(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldNEQ(FieldShareToken, v))
+}
+
+// ShareTokenIn applies the In predicate on the "share_token" field.
+func ShareTokenIn(vs ...string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldIn(FieldShareToken, vs...))
+}
+
+// ShareTokenNotIn applies the NotIn predicate on the "share_token" field.
+func ShareTokenNotIn(vs ...string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldNotIn(FieldShareToken, vs...))
+}
+
+// ShareTokenGT applies the GT predicate on the "share_token" field.
+func ShareTokenGT(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldGT(FieldShareToken, v))
+}
+
+// ShareTokenGTE applies the GTE predicate on the "share_token" field.
+func ShareTokenGTE(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldGTE(FieldShareToken, v))
+}
+
+// ShareTokenLT applies the LT predicate on the "share_token" field.
+func ShareTokenLT(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldLT(FieldShareToken, v))
+}
+
+// ShareTokenLTE applies the LTE predicate on the "share_token" field.
+func ShareTokenLTE(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldLTE(FieldShareToken, v))
+}
+
+// ShareTokenContains applies the Contains predicate on the "share_token" field.
+func ShareTokenContains(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldContains(FieldShareToken, v))
+}
+
+// ShareTokenHasPrefix applies the HasPrefix predicate on the "share_token" field.
+func ShareTokenHasPrefix(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldHasPrefix(FieldShareToken, v))
+}
+
+// ShareTokenHasSuffix applies the HasSuffix predicate on the "share_token" field.
+func ShareTokenHasSuffix(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldHasSuffix(FieldShareToken, v))
+}
+
+// ShareTokenIsNil applies the IsNil predicate on the "share_token" field.
+func ShareTokenIsNil() predicate.Invoice {
+	return predicate.Invoice(sql.FieldIsNull(FieldShareToken))
+}
+
+// ShareTokenNotNil applies the NotNil predicate on the "share_token" field.
+func ShareTokenNotNil() predicate.Invoice {
+	return predicate.Invoice(sql.FieldNotNull(FieldShareToken))
+}
+
+// ShareTokenEqualFold applies the EqualFold predicate on the "share_token" field.
+func ShareTokenEqualFold(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldEqualFold(FieldShareToken, v))
+}
+
+// ShareTokenContainsFold applies the ContainsFold predicate on the "share_token" field.
+func ShareTokenContainsFold(v string) predicate.Invoice {
+	return predicate.Invoice(sql.FieldContainsFold(FieldShareToken, v))
+}
+
+// ShareExpiryEQ applies the EQ predicate on the "share_expiry" field.
+func ShareExpiryEQ(v time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldEQ(FieldShareExpiry, v))
+}
+
+// ShareExpiryNEQ applies the NEQ predicate on the "share_expiry" field.
+func ShareExpiryNEQ(v time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldNEQ(FieldShareExpiry, v))
+}
+
+// ShareExpiryIn applies the In predicate on the "share_expiry" field.
+func ShareExpiryIn(vs ...time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldIn(FieldShareExpiry, vs...))
+}
+
+// ShareExpiryNotIn applies the NotIn predicate on the "share_expiry" field.
+func ShareExpiryNotIn(vs ...time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldNotIn(FieldShareExpiry, vs...))
+}
+
+// ShareExpiryGT applies the GT predicate on the "share_expiry" field.
+func ShareExpiryGT(v time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldGT(FieldShareExpiry, v))
+}
+
+// ShareExpiryGTE applies the GTE predicate on the "share_expiry" field.
+func ShareExpiryGTE(v time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldGTE(FieldShareExpiry, v))
+}
+
+// ShareExpiryLT applies the LT predicate on the "share_expiry" field.
+func ShareExpiryLT(v time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldLT(FieldShareExpiry, v))
+}
+
+// ShareExpiryLTE applies the LTE predicate on the "share_expiry" field.
+func ShareExpiryLTE(v time.Time) predicate.Invoice {
+	return predicate.Invoice(sql.FieldLTE(FieldShareExpiry, v))
+}
+
+// ShareExpiryIsNil applies the IsNil predicate on the "share_expiry" field.
+func ShareExpiryIsNil() predicate.Invoice {
+	return predicate.Invoice(sql.FieldIsNull(FieldShareExpiry))
+}
+
+// ShareExpiryNotNil applies the NotNil predicate on the "share_expiry" field.
+func ShareExpiryNotNil() predicate.Invoice {
+	return predicate.Invoice(sql.FieldNotNull(FieldShareExpiry))
 }
 
 // HasCreator applies the HasEdge predicate on the "creator" edge.

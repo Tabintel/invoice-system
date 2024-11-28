@@ -33,6 +33,8 @@ var (
 		{Name: "due_date", Type: field.TypeTime},
 		{Name: "currency", Type: field.TypeString, Default: "USD"},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "share_token", Type: field.TypeString, Nullable: true},
+		{Name: "share_expiry", Type: field.TypeTime, Nullable: true},
 		{Name: "invoice_customer", Type: field.TypeInt, Nullable: true},
 		{Name: "user_invoices", Type: field.TypeInt, Nullable: true},
 	}
@@ -44,13 +46,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "invoices_customers_customer",
-				Columns:    []*schema.Column{InvoicesColumns[8]},
+				Columns:    []*schema.Column{InvoicesColumns[10]},
 				RefColumns: []*schema.Column{CustomersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "invoices_users_invoices",
-				Columns:    []*schema.Column{InvoicesColumns[9]},
+				Columns:    []*schema.Column{InvoicesColumns[11]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

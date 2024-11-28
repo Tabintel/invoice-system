@@ -4,8 +4,12 @@ import (
     "context"
     "time"
     "fmt"
+    "crypto/rand"
+    "encoding/base64"
+    "os"
     "github.com/Tabintel/invoice-system/ent"
     "github.com/Tabintel/invoice-system/ent/invoice"
+    
 )
 
 type InvoiceService struct {
@@ -131,4 +135,46 @@ func (s *InvoiceService) UpdateStatus(ctx context.Context, id int, input UpdateI
 
 func (s *InvoiceService) GetInvoice(ctx context.Context, id int) (*ent.Invoice, error) {
     return s.db.Invoice.Get(ctx, id)
+}
+
+type ShareableLinkResponse struct {
+    URL       string    `json:"url"`
+    ExpiresAt time.Time `json:"expires_at"`
+}
+
+func (s *InvoiceService) GenerateShareableLink(ctx context.Context, id int) (*ShareableLinkResponse, error) {
+    invoice, err := s.GetInvoice(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+    
+    token := generateSecureToken()
+    expiryTime := time.Now().Add(7 * 24 * time.Hour)
+    
+    // Store token with invoice
+    _, err = s.db.Invoice.UpdateOne(invoice).
+        SetShareToken(token).
+        SetShareExpiry(expiryTime).
+        Save(ctx)
+    if err != nil {
+        return nil, err
+    }
+    
+    shareableURL := fmt.Sprintf("%s/public/invoices/%s", os.Getenv("BASE_URL"), token)
+    
+    return &ShareableLinkResponse{
+        URL:       shareableURL,
+        ExpiresAt: expiryTime,
+    }, nil
+}
+func generateSecureToken() string {
+    b := make([]byte, 32)
+    rand.Read(b)
+    return base64.URLEncoding.EncodeToString(b)
+}
+
+func (s *InvoiceService) GetInvoiceByShareToken(ctx context.Context, token string) (*ent.Invoice, error) {
+    return s.db.Invoice.Query().
+        Where(invoice.ShareToken(token)).
+        Only(ctx)
 }

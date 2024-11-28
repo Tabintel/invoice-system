@@ -33,6 +33,10 @@ type Invoice struct {
 	Currency string `json:"currency,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// ShareToken holds the value of the "share_token" field.
+	ShareToken string `json:"share_token,omitempty"`
+	// ShareExpiry holds the value of the "share_expiry" field.
+	ShareExpiry time.Time `json:"share_expiry,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the InvoiceQuery when eager-loading is set.
 	Edges            InvoiceEdges `json:"edges"`
@@ -105,9 +109,9 @@ func (*Invoice) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case invoice.FieldID:
 			values[i] = new(sql.NullInt64)
-		case invoice.FieldReferenceNumber, invoice.FieldStatus, invoice.FieldCurrency:
+		case invoice.FieldReferenceNumber, invoice.FieldStatus, invoice.FieldCurrency, invoice.FieldShareToken:
 			values[i] = new(sql.NullString)
-		case invoice.FieldIssueDate, invoice.FieldDueDate, invoice.FieldCreatedAt:
+		case invoice.FieldIssueDate, invoice.FieldDueDate, invoice.FieldCreatedAt, invoice.FieldShareExpiry:
 			values[i] = new(sql.NullTime)
 		case invoice.ForeignKeys[0]: // invoice_customer
 			values[i] = new(sql.NullInt64)
@@ -175,6 +179,18 @@ func (i *Invoice) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field created_at", values[j])
 			} else if value.Valid {
 				i.CreatedAt = value.Time
+			}
+		case invoice.FieldShareToken:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field share_token", values[j])
+			} else if value.Valid {
+				i.ShareToken = value.String
+			}
+		case invoice.FieldShareExpiry:
+			if value, ok := values[j].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field share_expiry", values[j])
+			} else if value.Valid {
+				i.ShareExpiry = value.Time
 			}
 		case invoice.ForeignKeys[0]:
 			if value, ok := values[j].(*sql.NullInt64); !ok {
@@ -266,6 +282,12 @@ func (i *Invoice) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(i.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("share_token=")
+	builder.WriteString(i.ShareToken)
+	builder.WriteString(", ")
+	builder.WriteString("share_expiry=")
+	builder.WriteString(i.ShareExpiry.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

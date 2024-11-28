@@ -7,6 +7,7 @@ import (
     "log"
     "strconv"
     "github.com/go-chi/chi/v5"
+    "github.com/Tabintel/invoice-system/ent"
     "github.com/Tabintel/invoice-system/internal/services"
 )
 type InvoiceHandler struct {
@@ -142,5 +143,28 @@ func (h *InvoiceHandler) DownloadPDF() http.HandlerFunc {
         w.Header().Set("Content-Type", "application/pdf")
         w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", invoice.ReferenceNumber))
         w.Write(pdfBytes)
+    }
+}
+
+func (h *InvoiceHandler) GenerateShareableLink() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+        
+        shareableLink, err := h.service.GenerateShareableLink(r.Context(), id)
+        if err != nil {
+            if ent.IsNotFound(err) {
+                http.Error(w, "Invoice not found", http.StatusNotFound)
+                return
+            }
+            log.Printf("Error generating shareable link: %v", err)
+            http.Error(w, "Failed to generate link", http.StatusInternalServerError)
+            return
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "status": "success",
+            "data":   shareableLink,
+        })
     }
 }

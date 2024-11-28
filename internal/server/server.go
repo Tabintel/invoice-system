@@ -42,6 +42,11 @@ func (s *Server) setupRoutes() {
         s.router.Get("/health", s.handleHealth())
         invoiceService := services.NewInvoiceService(s.db)
         invoiceHandler := handlers.NewInvoiceHandler(invoiceService)
+
+        customerService := services.NewCustomerService(s.db)
+
+        customerHandler := handlers.NewCustomerHandler(customerService)
+        publicHandler := handlers.NewPublicHandler(invoiceService)
     
         s.router.Post("/api/invoices", invoiceHandler.Create())
 
@@ -61,8 +66,8 @@ func (s *Server) setupRoutes() {
            // httpSwagger.URL("/swagger/doc.json"),
         //))
 
-        customerService := services.NewCustomerService(s.db)
-        customerHandler := handlers.NewCustomerHandler(customerService)
+        customerService = services.NewCustomerService(s.db)
+        customerHandler = handlers.NewCustomerHandler(customerService)
     
         s.router.Post("/api/customers", customerHandler.Create())
         s.router.Get("/api/customers", customerHandler.List())
@@ -70,6 +75,17 @@ func (s *Server) setupRoutes() {
         s.router.Put("/api/customers/{id}", customerHandler.Update())
         s.router.Delete("/api/customers/{id}", customerHandler.Delete())
         s.router.Get("/api/invoices/{id}/pdf", invoiceHandler.DownloadPDF())
+        s.router.Post("/api/invoices/{id}/share", invoiceHandler.GenerateShareableLink())
+        //s.router.Get("/public/invoices/{token}", invoiceHandler.ViewPublicInvoice())
+
+        // Initialize public handler
+        publicHandler = handlers.NewPublicHandler(invoiceService)
+    
+        // Public routes
+        s.router.Get("/public/invoices/{token}", publicHandler.ViewPublicInvoice())
+
+
+        
 
 
 

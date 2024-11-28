@@ -595,6 +595,8 @@ type InvoiceMutation struct {
 	due_date         *time.Time
 	currency         *string
 	created_at       *time.Time
+	share_token      *string
+	share_expiry     *time.Time
 	clearedFields    map[string]struct{}
 	creator          *int
 	clearedcreator   bool
@@ -981,6 +983,104 @@ func (m *InvoiceMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
+// SetShareToken sets the "share_token" field.
+func (m *InvoiceMutation) SetShareToken(s string) {
+	m.share_token = &s
+}
+
+// ShareToken returns the value of the "share_token" field in the mutation.
+func (m *InvoiceMutation) ShareToken() (r string, exists bool) {
+	v := m.share_token
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShareToken returns the old "share_token" field's value of the Invoice entity.
+// If the Invoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InvoiceMutation) OldShareToken(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShareToken is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShareToken requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShareToken: %w", err)
+	}
+	return oldValue.ShareToken, nil
+}
+
+// ClearShareToken clears the value of the "share_token" field.
+func (m *InvoiceMutation) ClearShareToken() {
+	m.share_token = nil
+	m.clearedFields[invoice.FieldShareToken] = struct{}{}
+}
+
+// ShareTokenCleared returns if the "share_token" field was cleared in this mutation.
+func (m *InvoiceMutation) ShareTokenCleared() bool {
+	_, ok := m.clearedFields[invoice.FieldShareToken]
+	return ok
+}
+
+// ResetShareToken resets all changes to the "share_token" field.
+func (m *InvoiceMutation) ResetShareToken() {
+	m.share_token = nil
+	delete(m.clearedFields, invoice.FieldShareToken)
+}
+
+// SetShareExpiry sets the "share_expiry" field.
+func (m *InvoiceMutation) SetShareExpiry(t time.Time) {
+	m.share_expiry = &t
+}
+
+// ShareExpiry returns the value of the "share_expiry" field in the mutation.
+func (m *InvoiceMutation) ShareExpiry() (r time.Time, exists bool) {
+	v := m.share_expiry
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShareExpiry returns the old "share_expiry" field's value of the Invoice entity.
+// If the Invoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InvoiceMutation) OldShareExpiry(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShareExpiry is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShareExpiry requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShareExpiry: %w", err)
+	}
+	return oldValue.ShareExpiry, nil
+}
+
+// ClearShareExpiry clears the value of the "share_expiry" field.
+func (m *InvoiceMutation) ClearShareExpiry() {
+	m.share_expiry = nil
+	m.clearedFields[invoice.FieldShareExpiry] = struct{}{}
+}
+
+// ShareExpiryCleared returns if the "share_expiry" field was cleared in this mutation.
+func (m *InvoiceMutation) ShareExpiryCleared() bool {
+	_, ok := m.clearedFields[invoice.FieldShareExpiry]
+	return ok
+}
+
+// ResetShareExpiry resets all changes to the "share_expiry" field.
+func (m *InvoiceMutation) ResetShareExpiry() {
+	m.share_expiry = nil
+	delete(m.clearedFields, invoice.FieldShareExpiry)
+}
+
 // SetCreatorID sets the "creator" edge to the User entity by id.
 func (m *InvoiceMutation) SetCreatorID(id int) {
 	m.creator = &id
@@ -1201,7 +1301,7 @@ func (m *InvoiceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *InvoiceMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 9)
 	if m.reference_number != nil {
 		fields = append(fields, invoice.FieldReferenceNumber)
 	}
@@ -1222,6 +1322,12 @@ func (m *InvoiceMutation) Fields() []string {
 	}
 	if m.created_at != nil {
 		fields = append(fields, invoice.FieldCreatedAt)
+	}
+	if m.share_token != nil {
+		fields = append(fields, invoice.FieldShareToken)
+	}
+	if m.share_expiry != nil {
+		fields = append(fields, invoice.FieldShareExpiry)
 	}
 	return fields
 }
@@ -1245,6 +1351,10 @@ func (m *InvoiceMutation) Field(name string) (ent.Value, bool) {
 		return m.Currency()
 	case invoice.FieldCreatedAt:
 		return m.CreatedAt()
+	case invoice.FieldShareToken:
+		return m.ShareToken()
+	case invoice.FieldShareExpiry:
+		return m.ShareExpiry()
 	}
 	return nil, false
 }
@@ -1268,6 +1378,10 @@ func (m *InvoiceMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCurrency(ctx)
 	case invoice.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
+	case invoice.FieldShareToken:
+		return m.OldShareToken(ctx)
+	case invoice.FieldShareExpiry:
+		return m.OldShareExpiry(ctx)
 	}
 	return nil, fmt.Errorf("unknown Invoice field %s", name)
 }
@@ -1326,6 +1440,20 @@ func (m *InvoiceMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCreatedAt(v)
 		return nil
+	case invoice.FieldShareToken:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShareToken(v)
+		return nil
+	case invoice.FieldShareExpiry:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShareExpiry(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Invoice field %s", name)
 }
@@ -1370,7 +1498,14 @@ func (m *InvoiceMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *InvoiceMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(invoice.FieldShareToken) {
+		fields = append(fields, invoice.FieldShareToken)
+	}
+	if m.FieldCleared(invoice.FieldShareExpiry) {
+		fields = append(fields, invoice.FieldShareExpiry)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1383,6 +1518,14 @@ func (m *InvoiceMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *InvoiceMutation) ClearField(name string) error {
+	switch name {
+	case invoice.FieldShareToken:
+		m.ClearShareToken()
+		return nil
+	case invoice.FieldShareExpiry:
+		m.ClearShareExpiry()
+		return nil
+	}
 	return fmt.Errorf("unknown Invoice nullable field %s", name)
 }
 
@@ -1410,6 +1553,12 @@ func (m *InvoiceMutation) ResetField(name string) error {
 		return nil
 	case invoice.FieldCreatedAt:
 		m.ResetCreatedAt()
+		return nil
+	case invoice.FieldShareToken:
+		m.ResetShareToken()
+		return nil
+	case invoice.FieldShareExpiry:
+		m.ResetShareExpiry()
 		return nil
 	}
 	return fmt.Errorf("unknown Invoice field %s", name)
