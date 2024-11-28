@@ -84,6 +84,9 @@ func (s *Server) setupRoutes() {
         // Public routes
         s.router.Get("/public/invoices/{token}", publicHandler.ViewPublicInvoice())
 
+        s.router.Get("/api/invoices/stats", invoiceHandler.GetStats())
+
+
 
         
 

@@ -100,33 +100,45 @@ func (s *InvoiceService) ListInvoices(ctx context.Context, input ListInvoicesInp
     return query.Limit(input.PageSize).Offset(offset).All(ctx)
 }
 
-func (s *InvoiceService) GetInvoiceStats(ctx context.Context) (*InvoiceStats, error) {
+func (s *InvoiceService) GetStats(ctx context.Context) (*InvoiceStats, error) {
     stats := &InvoiceStats{}
     
-    var err error
-    stats.TotalPaid, err = s.db.Invoice.Query().Where(invoice.Status("paid")).Count(ctx)
+    // Handle errors properly
+    paid, err := s.db.Invoice.Query().
+        Where(invoice.StatusEQ("paid")).
+        Count(ctx)
     if err != nil {
         return nil, err
     }
+    stats.TotalPaid = paid
     
-    stats.TotalOverdue, err = s.db.Invoice.Query().Where(invoice.Status("overdue")).Count(ctx)
+    overdue, err := s.db.Invoice.Query().
+        Where(invoice.StatusEQ("pending")).
+        Where(invoice.DueDateLT(time.Now())).
+        Count(ctx)
     if err != nil {
         return nil, err
     }
+    stats.TotalOverdue = overdue
     
-    stats.TotalDraft, err = s.db.Invoice.Query().Where(invoice.Status("draft")).Count(ctx)
+    draft, err := s.db.Invoice.Query().
+        Where(invoice.StatusEQ("draft")).
+        Count(ctx)
     if err != nil {
         return nil, err
     }
+    stats.TotalDraft = draft
     
-    stats.TotalUnpaid, err = s.db.Invoice.Query().Where(invoice.Status("unpaid")).Count(ctx)
+    unpaid, err := s.db.Invoice.Query().
+        Where(invoice.StatusEQ("pending")).
+        Count(ctx)
     if err != nil {
         return nil, err
     }
+    stats.TotalUnpaid = unpaid
     
     return stats, nil
-}
-// InvoiceService
+}// InvoiceService
 func (s *InvoiceService) UpdateStatus(ctx context.Context, id int, input UpdateInvoiceStatusInput) (*ent.Invoice, error) {
     return s.db.Invoice.UpdateOneID(id).
         SetStatus(input.Status).

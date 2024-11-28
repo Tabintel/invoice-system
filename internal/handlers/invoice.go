@@ -73,7 +73,7 @@ func (h *InvoiceHandler) List() http.HandlerFunc {
             return
         }
         
-        stats, err := h.service.GetInvoiceStats(r.Context())
+        stats, err := h.service.GetStats(r.Context())
         if err != nil {
             log.Printf("Error getting invoice stats: %v", err)
             http.Error(w, "Failed to get invoice stats", http.StatusInternalServerError)
@@ -90,6 +90,7 @@ func (h *InvoiceHandler) List() http.HandlerFunc {
         })
     }
 }
+
 func (h *InvoiceHandler) UpdateStatus() http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         idStr := chi.URLParam(r, "id")
@@ -165,6 +166,23 @@ func (h *InvoiceHandler) GenerateShareableLink() http.HandlerFunc {
         json.NewEncoder(w).Encode(map[string]interface{}{
             "status": "success",
             "data":   shareableLink,
+        })
+    }
+}
+
+func (h *InvoiceHandler) GetStats() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        stats, err := h.service.GetStats(r.Context())
+        if err != nil {
+            log.Printf("Error getting invoice stats: %v", err)
+            http.Error(w, "Failed to get stats", http.StatusInternalServerError)
+            return
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "status": "success",
+            "data":   stats,
         })
     }
 }
