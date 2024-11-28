@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/Tabintel/invoice-system/ent/customer"
 	"github.com/Tabintel/invoice-system/ent/invoice"
 	"github.com/Tabintel/invoice-system/ent/schema"
 	"github.com/Tabintel/invoice-system/ent/user"
@@ -14,6 +15,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	customerFields := schema.Customer{}.Fields()
+	_ = customerFields
+	// customerDescCreatedAt is the schema descriptor for created_at field.
+	customerDescCreatedAt := customerFields[5].Descriptor()
+	// customer.DefaultCreatedAt holds the default value on creation for the created_at field.
+	customer.DefaultCreatedAt = customerDescCreatedAt.Default.(func() time.Time)
+	// customerDescID is the schema descriptor for id field.
+	customerDescID := customerFields[0].Descriptor()
+	// customer.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	customer.IDValidator = customerDescID.Validators[0].(func(int) error)
 	invoiceFields := schema.Invoice{}.Fields()
 	_ = invoiceFields
 	// invoiceDescStatus is the schema descriptor for status field.

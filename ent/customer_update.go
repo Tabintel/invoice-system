@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,76 @@ type CustomerUpdate struct {
 // Where appends a list predicates to the CustomerUpdate builder.
 func (cu *CustomerUpdate) Where(ps ...predicate.Customer) *CustomerUpdate {
 	cu.mutation.Where(ps...)
+	return cu
+}
+
+// SetName sets the "name" field.
+func (cu *CustomerUpdate) SetName(s string) *CustomerUpdate {
+	cu.mutation.SetName(s)
+	return cu
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (cu *CustomerUpdate) SetNillableName(s *string) *CustomerUpdate {
+	if s != nil {
+		cu.SetName(*s)
+	}
+	return cu
+}
+
+// SetEmail sets the "email" field.
+func (cu *CustomerUpdate) SetEmail(s string) *CustomerUpdate {
+	cu.mutation.SetEmail(s)
+	return cu
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (cu *CustomerUpdate) SetNillableEmail(s *string) *CustomerUpdate {
+	if s != nil {
+		cu.SetEmail(*s)
+	}
+	return cu
+}
+
+// SetPhone sets the "phone" field.
+func (cu *CustomerUpdate) SetPhone(s string) *CustomerUpdate {
+	cu.mutation.SetPhone(s)
+	return cu
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (cu *CustomerUpdate) SetNillablePhone(s *string) *CustomerUpdate {
+	if s != nil {
+		cu.SetPhone(*s)
+	}
+	return cu
+}
+
+// SetAddress sets the "address" field.
+func (cu *CustomerUpdate) SetAddress(s string) *CustomerUpdate {
+	cu.mutation.SetAddress(s)
+	return cu
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (cu *CustomerUpdate) SetNillableAddress(s *string) *CustomerUpdate {
+	if s != nil {
+		cu.SetAddress(*s)
+	}
+	return cu
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cu *CustomerUpdate) SetCreatedAt(t time.Time) *CustomerUpdate {
+	cu.mutation.SetCreatedAt(t)
+	return cu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cu *CustomerUpdate) SetNillableCreatedAt(t *time.Time) *CustomerUpdate {
+	if t != nil {
+		cu.SetCreatedAt(*t)
+	}
 	return cu
 }
 
@@ -68,6 +139,21 @@ func (cu *CustomerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := cu.mutation.Name(); ok {
+		_spec.SetField(customer.FieldName, field.TypeString, value)
+	}
+	if value, ok := cu.mutation.Email(); ok {
+		_spec.SetField(customer.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := cu.mutation.Phone(); ok {
+		_spec.SetField(customer.FieldPhone, field.TypeString, value)
+	}
+	if value, ok := cu.mutation.Address(); ok {
+		_spec.SetField(customer.FieldAddress, field.TypeString, value)
+	}
+	if value, ok := cu.mutation.CreatedAt(); ok {
+		_spec.SetField(customer.FieldCreatedAt, field.TypeTime, value)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{customer.Label}
@@ -86,6 +172,76 @@ type CustomerUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *CustomerMutation
+}
+
+// SetName sets the "name" field.
+func (cuo *CustomerUpdateOne) SetName(s string) *CustomerUpdateOne {
+	cuo.mutation.SetName(s)
+	return cuo
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (cuo *CustomerUpdateOne) SetNillableName(s *string) *CustomerUpdateOne {
+	if s != nil {
+		cuo.SetName(*s)
+	}
+	return cuo
+}
+
+// SetEmail sets the "email" field.
+func (cuo *CustomerUpdateOne) SetEmail(s string) *CustomerUpdateOne {
+	cuo.mutation.SetEmail(s)
+	return cuo
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (cuo *CustomerUpdateOne) SetNillableEmail(s *string) *CustomerUpdateOne {
+	if s != nil {
+		cuo.SetEmail(*s)
+	}
+	return cuo
+}
+
+// SetPhone sets the "phone" field.
+func (cuo *CustomerUpdateOne) SetPhone(s string) *CustomerUpdateOne {
+	cuo.mutation.SetPhone(s)
+	return cuo
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (cuo *CustomerUpdateOne) SetNillablePhone(s *string) *CustomerUpdateOne {
+	if s != nil {
+		cuo.SetPhone(*s)
+	}
+	return cuo
+}
+
+// SetAddress sets the "address" field.
+func (cuo *CustomerUpdateOne) SetAddress(s string) *CustomerUpdateOne {
+	cuo.mutation.SetAddress(s)
+	return cuo
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (cuo *CustomerUpdateOne) SetNillableAddress(s *string) *CustomerUpdateOne {
+	if s != nil {
+		cuo.SetAddress(*s)
+	}
+	return cuo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cuo *CustomerUpdateOne) SetCreatedAt(t time.Time) *CustomerUpdateOne {
+	cuo.mutation.SetCreatedAt(t)
+	return cuo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cuo *CustomerUpdateOne) SetNillableCreatedAt(t *time.Time) *CustomerUpdateOne {
+	if t != nil {
+		cuo.SetCreatedAt(*t)
+	}
+	return cuo
 }
 
 // Mutation returns the CustomerMutation object of the builder.
@@ -158,6 +314,21 @@ func (cuo *CustomerUpdateOne) sqlSave(ctx context.Context) (_node *Customer, err
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cuo.mutation.Name(); ok {
+		_spec.SetField(customer.FieldName, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.Email(); ok {
+		_spec.SetField(customer.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.Phone(); ok {
+		_spec.SetField(customer.FieldPhone, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.Address(); ok {
+		_spec.SetField(customer.FieldAddress, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.CreatedAt(); ok {
+		_spec.SetField(customer.FieldCreatedAt, field.TypeTime, value)
 	}
 	_node = &Customer{config: cuo.config}
 	_spec.Assign = _node.assignValues

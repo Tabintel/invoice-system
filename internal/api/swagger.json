@@ -42,5 +42,44 @@
                 ]
             }
         }
+    },
+    "components": {
+        "schemas": {
+            "CreateInvoiceInput": {
+                "type": "object",
+                "properties": {
+                    "customer_id": {
+                        "type": "integer"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItemInput"
+                        }
+                    }
+                }
+            },
+            "InvoiceItemInput": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "rate": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
     }
 }

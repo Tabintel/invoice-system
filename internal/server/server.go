@@ -61,7 +61,10 @@ func (s *Server) setupRoutes() {
            // httpSwagger.URL("/swagger/doc.json"),
         //))
 
-        
+        customerService := services.NewCustomerService(s.db)
+        customerHandler := handlers.NewCustomerHandler(customerService)
+    
+        s.router.Post("/api/customers", customerHandler.Create())
     }
 
 func (s *Server) handleHealth() http.HandlerFunc {

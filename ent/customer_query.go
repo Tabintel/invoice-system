@@ -258,6 +258,18 @@ func (cq *CustomerQuery) Clone() *CustomerQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Customer.Query().
+//		GroupBy(customer.FieldName).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (cq *CustomerQuery) GroupBy(field string, fields ...string) *CustomerGroupBy {
 	cq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &CustomerGroupBy{build: cq}
@@ -269,6 +281,16 @@ func (cq *CustomerQuery) GroupBy(field string, fields ...string) *CustomerGroupB
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//	}
+//
+//	client.Customer.Query().
+//		Select(customer.FieldName).
+//		Scan(ctx, &v)
 func (cq *CustomerQuery) Select(fields ...string) *CustomerSelect {
 	cq.ctx.Fields = append(cq.ctx.Fields, fields...)
 	sbuild := &CustomerSelect{CustomerQuery: cq}

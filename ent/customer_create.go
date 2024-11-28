@@ -4,7 +4,9 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +20,50 @@ type CustomerCreate struct {
 	hooks    []Hook
 }
 
+// SetName sets the "name" field.
+func (cc *CustomerCreate) SetName(s string) *CustomerCreate {
+	cc.mutation.SetName(s)
+	return cc
+}
+
+// SetEmail sets the "email" field.
+func (cc *CustomerCreate) SetEmail(s string) *CustomerCreate {
+	cc.mutation.SetEmail(s)
+	return cc
+}
+
+// SetPhone sets the "phone" field.
+func (cc *CustomerCreate) SetPhone(s string) *CustomerCreate {
+	cc.mutation.SetPhone(s)
+	return cc
+}
+
+// SetAddress sets the "address" field.
+func (cc *CustomerCreate) SetAddress(s string) *CustomerCreate {
+	cc.mutation.SetAddress(s)
+	return cc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cc *CustomerCreate) SetCreatedAt(t time.Time) *CustomerCreate {
+	cc.mutation.SetCreatedAt(t)
+	return cc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cc *CustomerCreate) SetNillableCreatedAt(t *time.Time) *CustomerCreate {
+	if t != nil {
+		cc.SetCreatedAt(*t)
+	}
+	return cc
+}
+
+// SetID sets the "id" field.
+func (cc *CustomerCreate) SetID(i int) *CustomerCreate {
+	cc.mutation.SetID(i)
+	return cc
+}
+
 // Mutation returns the CustomerMutation object of the builder.
 func (cc *CustomerCreate) Mutation() *CustomerMutation {
 	return cc.mutation
@@ -25,6 +71,7 @@ func (cc *CustomerCreate) Mutation() *CustomerMutation {
 
 // Save creates the Customer in the database.
 func (cc *CustomerCreate) Save(ctx context.Context) (*Customer, error) {
+	cc.defaults()
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -50,8 +97,36 @@ func (cc *CustomerCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cc *CustomerCreate) defaults() {
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		v := customer.DefaultCreatedAt()
+		cc.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cc *CustomerCreate) check() error {
+	if _, ok := cc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Customer.name"`)}
+	}
+	if _, ok := cc.mutation.Email(); !ok {
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Customer.email"`)}
+	}
+	if _, ok := cc.mutation.Phone(); !ok {
+		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "Customer.phone"`)}
+	}
+	if _, ok := cc.mutation.Address(); !ok {
+		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Customer.address"`)}
+	}
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Customer.created_at"`)}
+	}
+	if v, ok := cc.mutation.ID(); ok {
+		if err := customer.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Customer.id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -66,8 +141,10 @@ func (cc *CustomerCreate) sqlSave(ctx context.Context) (*Customer, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
 	return _node, nil
@@ -78,6 +155,30 @@ func (cc *CustomerCreate) createSpec() (*Customer, *sqlgraph.CreateSpec) {
 		_node = &Customer{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(customer.Table, sqlgraph.NewFieldSpec(customer.FieldID, field.TypeInt))
 	)
+	if id, ok := cc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
+	if value, ok := cc.mutation.Name(); ok {
+		_spec.SetField(customer.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := cc.mutation.Email(); ok {
+		_spec.SetField(customer.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := cc.mutation.Phone(); ok {
+		_spec.SetField(customer.FieldPhone, field.TypeString, value)
+		_node.Phone = value
+	}
+	if value, ok := cc.mutation.Address(); ok {
+		_spec.SetField(customer.FieldAddress, field.TypeString, value)
+		_node.Address = value
+	}
+	if value, ok := cc.mutation.CreatedAt(); ok {
+		_spec.SetField(customer.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
 	return _node, _spec
 }
 
@@ -99,6 +200,7 @@ func (ccb *CustomerCreateBulk) Save(ctx context.Context) ([]*Customer, error) {
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CustomerMutation)
 				if !ok {
@@ -125,7 +227,7 @@ func (ccb *CustomerCreateBulk) Save(ctx context.Context) ([]*Customer, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}
