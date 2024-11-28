@@ -39,3 +39,20 @@ func (h *CustomerHandler) Create() http.HandlerFunc {
         })
     }
 }
+
+func (h *CustomerHandler) List() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        customers, err := h.service.ListCustomers(r.Context())
+        if err != nil {
+            log.Printf("Error listing customers: %v", err)
+            http.Error(w, "Failed to list customers", http.StatusInternalServerError)
+            return
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "status": "success",
+            "data":   customers,
+        })
+    }
+}

@@ -3,6 +3,7 @@ package services
 import (
     "context"
     "github.com/Tabintel/invoice-system/ent"
+    "github.com/Tabintel/invoice-system/ent/customer"
 )
 
 type CustomerService struct {
@@ -27,4 +28,10 @@ func (s *CustomerService) CreateCustomer(ctx context.Context, input CreateCustom
         SetPhone(input.Phone).
         SetAddress(input.Address).
         Save(ctx)
+}
+
+func (s *CustomerService) ListCustomers(ctx context.Context) ([]*ent.Customer, error) {
+    return s.db.Customer.Query().
+        Order(ent.Desc(customer.FieldCreatedAt)).
+        All(ctx)
 }
