@@ -1,4 +1,4 @@
-## Invoice System Endpoints
+## Invoice System Backend Application
 
 This Go Invoice System provides a RESTful API to manage invoices and customers efficiently. The API allows you to perform various operations, including creating invoices, managing customers, and generating PDF invoices.
 
