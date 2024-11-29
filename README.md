@@ -22,6 +22,11 @@ This Go Invoice System provides a RESTful API to manage invoices and customers e
    cd invoice-system
    ```
 
+   Create and `.env` in the root directory file and enter the values for:
+
+   - DATABASE_URL=""
+   - JWT_SECRET=""
+
 2. Install dependencies:  
    ```bash
    go mod tidy
