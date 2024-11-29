@@ -51,8 +51,7 @@ API Base URL deployed on Render: https://invoice-system-8zbx.onrender.com
 - **Response:**
   ```json
   {
-    "status": "success",
-    "message": "Server is running"
+    "OK"
   }
   ```
 
@@ -311,3 +310,16 @@ Here is the list of 11 core endpoints, along with their payloads, responses, and
 - **Description:** Get an overview of the invoice system's current state, including counts of paid, overdue, draft, and unpaid invoices.
 
 ---------
+
+
+### Notes - Database ORM Updates
+
+When adding new features or endpoints that interact with the database, run:
+
+```bash
+go generate ./ent
+```
+
+This command will update the database schema and generate the necessary database queries for interacting with the database.
+
+------
